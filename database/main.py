@@ -37,6 +37,7 @@ class DB:
     def update(self, id, title, author, isbn):
         self.cursor.execute("""UPDATE books SET title=?, author=?, isbn=?
                 WHERE id=?""", (title, author, isbn, id))
+        self.conn.commit()
     
     # delete from database
     def delete(self, id):

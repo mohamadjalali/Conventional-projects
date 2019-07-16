@@ -1,5 +1,6 @@
 fileName = input("Enter the filename: ")
 f = open(fileName, 'r')
+print("Reading File {}".format(f))
 
 words = []
 for line in f:

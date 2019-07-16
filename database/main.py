@@ -51,7 +51,6 @@ def get_selected_row(event):
     global selected_tuble
     index = list1.curselection()[0]
     selected_tuble = list1.get(index)
-#     print(selected_tuble[0])
     e1.delete(0, END)
     e1.insert(END, selected_tuble[1])
     e2.delete(0, END)

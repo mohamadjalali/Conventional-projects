@@ -75,7 +75,7 @@ def add_command():
     list1.insert(END, (title_text.get(), author_text.get(), isbn_text.get()))
 
 def delete_command():
-    db.delete(selected_tuble[0])
+    db.delete(str(selected_tuble[0]))
 
 def update_command():
     db.update(selected_tuble[0], title_text.get(), author_text.get(), isbn_text.get())

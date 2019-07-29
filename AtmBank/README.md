@@ -1,6 +1,7 @@
 Enter the ATM program and pay attention to the following accounts
 The deposit operations performed withdrawal from the account and inventory.
 The names and pins are as follows
+
 Name: Name1
 PIN: 1000
 Name: Name2

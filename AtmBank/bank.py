@@ -102,7 +102,7 @@ class Bank(object):
         fileObj.close()
         print("successful saved")
 
-bank  = Bank()
-bank.add(SavingsAccount("arian", "1001", 4000.00))
-bank.save('bank.dat')
-bank.__init__('bank.dat')
+# bank  = Bank()
+# bank.add(SavingsAccount("arian", "1001", 4000.00))
+# bank.save('bank.dat')
+# bank.__init__('bank.dat')

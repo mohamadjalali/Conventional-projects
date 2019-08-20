@@ -1,7 +1,6 @@
 import redis
 from collections.abc import MutableMapping
 import json
-from pprint import pprint
 
 
 r = redis.Redis()
@@ -27,7 +26,6 @@ result = {'city': 'Tehran', 'zip':10016,
 
 r.set(484272, json.dumps(restaurant_484272))
 
-
 def setflat_skeys(
         r: redis.Redis,
         obj: dict,
@@ -36,11 +34,11 @@ def setflat_skeys(
         *,
         _autopfix=""
     ) -> None:
-    
+    print(_autopfix) 
+    print()
     allowed_vtypes = (str, bytes, float, int)
     for key, value in obj.items():
         key = _autopfix + key
-#         print(">>> ",_autopfix)
         if isinstance(value, allowed_vtypes):
             r.set("{}{}{}".format(prefix, delim, key), value)
         elif isinstance(value, MutableMapping):

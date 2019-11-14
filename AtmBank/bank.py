@@ -71,7 +71,6 @@ class Bank(object):
 
     def add(self, account):
         """Inserts and account using its PIN as a key."""
-#         print(account)
         self._accounts[account.getPin()] = account
 
     def remove(self, pin):

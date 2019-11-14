@@ -1,17 +1,30 @@
 from tkinter import *
 import sqlite3
-
+import mysql.connector as mc
 
 class DB():
 
     def __init__(self):
-        self.conn   = sqlite3.connect('mysq.db')
+#         self.conn   = sqlite3.connect('mysq.db')
+#         self.cursor = self.conn.cursor()
+#         self.cursor.execute('''CREATE TABLE IF NOT EXISTS people
+#                 (id INTEGER PRIMARY KEY, name TEXT, phone TEXT)''')
+#         self.conn.commit()
+        self.conn = mc.connect(
+                host='localhost',
+                user='root',
+                passwd='',
+                database='phone_gui'
+        )
+
         self.cursor = self.conn.cursor()
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS people(id INTEGER PRIMARY KEY, name TEXT, phone TEXT)")
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS people
+            (id INT AUTO_INCREMENT PRIMARY KEY, name TEXT, phone TEXT)''')
         self.conn.commit()
 
+
     def helpp(self):
-        help(sqlite3)
+        help(mc)
 
     def show(self):
         self.cursor.execute('SELECT * FROM people')
@@ -22,21 +35,20 @@ class DB():
         name1  = textin.get()
         phone1 = textinn.get()
         self.cursor.execute('''INSERT INTO people(name, phone)
-                VALUES(?,?)''', (name1,phone1))
+                VALUES(%s,%s)''',(name1,phone1))
         self.conn.commit()
-#             self.conn.close()
     
     def updateContact(self):
         nam = name.get()
         ph  = phone.get()
         self.cursor.execute('''UPDATE people SET
-                        name=? WHERE phone=?''',(nam,ph))
+                        name=%s WHERE phone=%s''',(nam,ph))
         self.conn.commit()
 
     def det(self):
         dee=dell.get()
         self.cursor.execute('''DELETE FROM
-                        people WHERE name=?''',(dee,))
+                        people WHERE name=%s''',(dee,))
         self.conn.commit()
 
     def drop(self):
@@ -72,7 +84,7 @@ subm = Menu(menu)
 menu.add_cascade(label='Help', menu=subm)
 subm.add_command(label='Sqlite3 Docs', command=g.helpp)
 
-
+ 
 # phone label
 lab=Label(root,text='Name:', font=('none 13 bold'))
 lab.place(x=0,y=0)
@@ -112,7 +124,7 @@ entupdatephone.place(x=210,y=240)
 
 # Update Button
 buttupdate=Button(root,padx=2,pady=2,text='Update',command=g.updateContact,
-        font=('none 13 bold'))
+    font=('none 13 bold'))
 buttupdate.place(x=80,y=280)
 
 # Delete label
@@ -129,7 +141,7 @@ butdel.place(x=90,y=380)
 
 # Drop table Button
 buttdrop=Button(root,padx=2,pady=2,text='Drop table',command=g.drop,
-        font=('none 13 bold'))
+         font=('none 13 bold'))
 buttdrop.place(x=180,y=380)
 
 

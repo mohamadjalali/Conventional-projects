@@ -58,6 +58,20 @@ class Mod:
     def __le__(self, other):
         return self.value <= other.value
 
-mod = Mod(16, 6)
-mod_1 = 22
-print(hash(mod))
+
+    def __neg__(self):
+        return Mod(-self.value, self.modulus)
+
+
+    def __add__(self, other):
+        if isinstance(other, Mod) and self.modulus == other.modulus:
+            return Mod(self.value + other.value, self.modulus)
+        elif isinstance(other, int):
+            return Mod(self.value + other, self.modulus)
+        return NotImplemented
+       
+
+if __name__ == "__main__":
+    mod = Mod(16, 6)
+    mod_1 = 22
+

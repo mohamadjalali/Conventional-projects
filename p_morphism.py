@@ -21,7 +21,7 @@ class Mod:
     
     @value.setter
     def value(self, value):
-        self._value += value
+        self._value = value
 
     
     @property
@@ -69,9 +69,76 @@ class Mod:
         elif isinstance(other, int):
             return Mod(self.value + other, self.modulus)
         return NotImplemented
+
+
+    def __sub__(self, other):
+        if isinstance(other, Mod) and self.modulus == other.modulus:
+            return Mod(self.value - other.value, self.modulus)
+        elif isinstance(other, int):
+            return Mod(self.value - other, self.modulus)
+        return NotImplemented
+
+
+    def __mul__(self, other):
+        # we can use both formula: (A * (B Modulu C) Modulu C) OR (A * B) Modulu C
+        if isinstance(other, Mod) and self.modulus == other.modulus:
+            return Mod(self.value * (other.value % self.modulus), self.modulus)
+        elif isinstance(other, int):
+            return Mod(self.value * (other % self.modulus), self.modulus)
+        return NotImplemented
        
 
-if __name__ == "__main__":
-    mod = Mod(16, 6)
-    mod_1 = 22
+    def __pow__(self, other):
+        # we can use both formula: (A ** (B Modulu C) Modulu C) OR (A ** B) Modulu C
+        if isinstance(other, Mod) and self.modulus == other.modulus:
+            return Mod(self.value ** (other.value % self.modulus), self.modulus)
+        elif isinstance(other, int):
+            return Mod(self.value ** (other % self.modulus), self.modulus)
+        return NotImplemented
 
+    
+    def __iadd__(self, other):
+        if isinstance(other, Mod) and self.modulus == other.modulus:
+            self.value = (self.value + other.value) % self.modulus
+            return self
+        elif isinstance(other, int):
+            self.value = (self.value + other) % self.modulus
+            return self
+        return NotImplemented
+
+
+    def __isub__(self, other):
+        if isinstance(other, Mod) and self.modulus == other.modulus:
+            self.value = (self.value - other.value) % self.modulus
+            return self
+        elif isinstance(other, int):
+            self.value = (self.value - other) % self.modulus
+            return self
+        return NotImplemented
+
+
+    def __imul__(self, other):
+        if isinstance(other, Mod) and self.modulus == other.modulus:
+            self.value = (self.value * other.value) % self.modulus
+            return self
+        elif isinstance(other, int):
+            self.value = (self.value * (other % self.modulus)) % self.modulus
+            return self
+        return NotImplemented
+
+    
+    def __ipow__(self, other):
+        if isinstance(other, Mod) and self.modulus == other.modulus:
+            self.value = (self.value ** other.value) % self.modulus
+            return self
+        elif isinstance(other, int):
+            self.value = (self.value ** (other % self.modulus)) % self.modulus
+            return self
+        return NotImplemented
+
+
+if __name__ == "__main__":
+    mod = Mod(14, 6)
+    mod_1 = Mod(16, 6)
+    mod *= mod_1
+    print(mod)

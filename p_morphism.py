@@ -137,8 +137,14 @@ class Mod:
         return NotImplemented
 
 
+    def __lt__(self, other):
+        if isinstance(other, Mod) and self.modulus == other.modulus:
+            return self.value < other.value
+        elif isinstance(other, int):
+            return self.value < other % self.modulus
+        return NotImplemented
+
+
 if __name__ == "__main__":
-    mod = Mod(14, 6)
-    mod_1 = Mod(16, 6)
-    mod *= mod_1
-    print(mod)
+    print(Mod(3, 12) == Mod(15, 12))
+    print(Mod(3, 12) +  Mod(25, 7))

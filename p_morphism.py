@@ -145,6 +145,11 @@ class Mod:
         return NotImplemented
 
 
+    def _is_compatible(self, other):
+        return isinstance(other, Mod) or (isinstance(other, int) and self.modulus == other.modulus)
+
+
+
 if __name__ == "__main__":
     print(Mod(3, 12) == Mod(15, 12))
     print(Mod(3, 12) +  Mod(25, 7))

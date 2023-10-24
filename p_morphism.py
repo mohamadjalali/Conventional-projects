@@ -37,26 +37,31 @@ class Mod:
         print('__int__ reper')
         return self.value
     
+    
+    def _is_compatible(self, other):
+        return isinstance(other, int) or (isinstance(other, Mod) and self.modulus == other.modulus)
 
-    def __eq__(self, other):
-        if isinstance(other, Mod):
-            if self.modulus != other.modulus:
-                return NotImplemented
-            else:
-                return self.value == other.value
 
-        elif isinstance(other, int):
-            return other % self.modulus == self.value
-        else:
-            return NotImplemented
+    def _get_value(self, other):
+        if isinstance(self, int):
+            return other % self.modulus
+        if isinstance(other, Mod) and self.modulus == other.modulus:
+            return other.value
+        raise TypeError('Incompatible types.')
 
     
+    def __eq__(self, other):
+
+        other_value = self._get_value(other)
+        return self.value == other_value
+        
+
     def __hash__(self):
         return hash((self.value, self.modulus))
 
 
-    def __le__(self, other):
-        return self.value <= other.value
+#    def __le__(self, other):
+#        return self.value <= other.value
 
 
     def __neg__(self):
@@ -64,37 +69,24 @@ class Mod:
 
 
     def __add__(self, other):
-        if isinstance(other, Mod) and self.modulus == other.modulus:
-            return Mod(self.value + other.value, self.modulus)
-        elif isinstance(other, int):
-            return Mod(self.value + other, self.modulus)
-        return NotImplemented
+        other_value = self._get_value(other)
+        return Mod(self.value + other_value, self.modulus)
 
 
     def __sub__(self, other):
-        if isinstance(other, Mod) and self.modulus == other.modulus:
-            return Mod(self.value - other.value, self.modulus)
-        elif isinstance(other, int):
-            return Mod(self.value - other, self.modulus)
-        return NotImplemented
-
+        other_value = self._get_value(other)
+        return Mod(self.value - other_value, self.modulus)
 
     def __mul__(self, other):
         # we can use both formula: (A * (B Modulu C) Modulu C) OR (A * B) Modulu C
-        if isinstance(other, Mod) and self.modulus == other.modulus:
-            return Mod(self.value * (other.value % self.modulus), self.modulus)
-        elif isinstance(other, int):
-            return Mod(self.value * (other % self.modulus), self.modulus)
-        return NotImplemented
+        other_value = self._get_value(other)
+        return Mod(self.value * other_value, self.modulus)
        
 
     def __pow__(self, other):
         # we can use both formula: (A ** (B Modulu C) Modulu C) OR (A ** B) Modulu C
-        if isinstance(other, Mod) and self.modulus == other.modulus:
-            return Mod(self.value ** (other.value % self.modulus), self.modulus)
-        elif isinstance(other, int):
-            return Mod(self.value ** (other % self.modulus), self.modulus)
-        return NotImplemented
+        other_value = self._get_value(other)
+        return Mod(self.value ** other_value, self.modulus)
 
     
     def __iadd__(self, other):
@@ -145,11 +137,9 @@ class Mod:
         return NotImplemented
 
 
-    def _is_compatible(self, other):
-        return isinstance(other, Mod) or (isinstance(other, int) and self.modulus == other.modulus)
-
 
 
 if __name__ == "__main__":
     print(Mod(3, 12) == Mod(15, 12))
-    print(Mod(3, 12) +  Mod(25, 7))
+    print(Mod(3, 12) +  Mod(25, 12))
+    

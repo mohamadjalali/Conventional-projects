@@ -1,15 +1,19 @@
 from functools import total_ordering
+import operator
+
 
 @total_ordering
 class Mod:
 
     def __init__(self, value,  modulus):
+
         if not isinstance(modulus, int):
             raise TypeError("Modulus must be integer number")
         if modulus <= 0:
             raise ValueError("Modulus must be positive number")
         if not isinstance(value, int):
             raise TypeError("Value argument not valid, must be integer number")
+
         self._modulus = modulus
         self._value = value % modulus
 
@@ -38,10 +42,6 @@ class Mod:
         return self.value
     
     
-    def _is_compatible(self, other):
-        return isinstance(other, int) or (isinstance(other, Mod) and self.modulus == other.modulus)
-
-
     def _get_value(self, other):
         if isinstance(self, int):
             return other % self.modulus
@@ -50,8 +50,17 @@ class Mod:
         raise TypeError('Incompatible types.')
 
     
-    def __eq__(self, other):
+    def _perform_operation(self, other, op, *, in_place=False):
+        other_value  = self._get_value(other)
+        value_result = op(self.value, other_value)
+        if in_place:
+            self.value = value_result % self.modulus
+            return self
+        else:
+            return Mod(value_result, self.modulus)
 
+    
+    def __eq__(self, other):
         other_value = self._get_value(other)
         return self.value == other_value
         
@@ -60,86 +69,49 @@ class Mod:
         return hash((self.value, self.modulus))
 
 
-#    def __le__(self, other):
-#        return self.value <= other.value
-
-
     def __neg__(self):
         return Mod(-self.value, self.modulus)
 
 
     def __add__(self, other):
-        other_value = self._get_value(other)
-        return Mod(self.value + other_value, self.modulus)
+        return self._perform_operation(other, operator.pow)
 
 
     def __sub__(self, other):
-        other_value = self._get_value(other)
-        return Mod(self.value - other_value, self.modulus)
+        return self._perform_operation(other, operator.pow)
 
+    
     def __mul__(self, other):
-        # we can use both formula: (A * (B Modulu C) Modulu C) OR (A * B) Modulu C
-        other_value = self._get_value(other)
-        return Mod(self.value * other_value, self.modulus)
-       
+        return self._perform_operation(other, operator.pow)
+
 
     def __pow__(self, other):
-        # we can use both formula: (A ** (B Modulu C) Modulu C) OR (A ** B) Modulu C
-        other_value = self._get_value(other)
-        return Mod(self.value ** other_value, self.modulus)
+        return self._perform_operation(other, operator.pow)
 
     
     def __iadd__(self, other):
-        if isinstance(other, Mod) and self.modulus == other.modulus:
-            self.value = (self.value + other.value) % self.modulus
-            return self
-        elif isinstance(other, int):
-            self.value = (self.value + other) % self.modulus
-            return self
-        return NotImplemented
-
-
-    def __isub__(self, other):
-        if isinstance(other, Mod) and self.modulus == other.modulus:
-            self.value = (self.value - other.value) % self.modulus
-            return self
-        elif isinstance(other, int):
-            self.value = (self.value - other) % self.modulus
-            return self
-        return NotImplemented
-
-
-    def __imul__(self, other):
-        if isinstance(other, Mod) and self.modulus == other.modulus:
-            self.value = (self.value * other.value) % self.modulus
-            return self
-        elif isinstance(other, int):
-            self.value = (self.value * (other % self.modulus)) % self.modulus
-            return self
-        return NotImplemented
+        return self._perform_operation(other, operator.pow, in_place=True)
 
     
+    def __isub__(self, other):
+        return self._perform_operation(other, operator.pow, in_place=True)
+    
+
+    def __imul__(self, other):
+        return self._perform_operation(other, operator.pow, in_place=True)
+
     def __ipow__(self, other):
-        if isinstance(other, Mod) and self.modulus == other.modulus:
-            self.value = (self.value ** other.value) % self.modulus
-            return self
-        elif isinstance(other, int):
-            self.value = (self.value ** (other % self.modulus)) % self.modulus
-            return self
-        return NotImplemented
+        return self._perform_operation(other, operator.pow, in_place=True)
 
 
     def __lt__(self, other):
-        if isinstance(other, Mod) and self.modulus == other.modulus:
-            return self.value < other.value
-        elif isinstance(other, int):
-            return self.value < other % self.modulus
-        return NotImplemented
-
+        other_value = self._get_value(other)
+        return self.value < other_value
 
 
 
 if __name__ == "__main__":
-    print(Mod(3, 12) == Mod(15, 12))
-    print(Mod(3, 12) +  Mod(25, 12))
-    
+    a = Mod(4, 12)  
+    b = Mod(15, 12)
+    print(a < b)
+

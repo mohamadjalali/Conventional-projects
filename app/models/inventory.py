@@ -1,7 +1,4 @@
-from pprint import pprint
-from math import pi
-from numbers import Real
-
+from app.utils import validators as valid
 
 class Resource:
 
@@ -9,7 +6,11 @@ class Resource:
         self._name = name
         self._manufacturer = manufacturer
         self._total = total
-        self._allocated = allocated
+        if not valid.validate_integer('allocated', allocated, 0, self._total,\
+            "The demand is greater than the total available.",\
+            "The demand cannot be less than zero."):
+            self._total -= allocated
+            self._allocated = allocated
 
 
     def __str__(self):
@@ -29,19 +30,11 @@ class Resource:
     @property
     def allocated(self):
         return self._allocated
-
-
+    
+    
     @property
     def name(self):
         return self._name
-
-
-    def _error_handling(self, n):
-        if not isinstance(n, Real):
-            raise TypeError("The value must be 'real' number.")
-        if n < 0:
-            raise ValueError("The value must be non-zero.")
-        return n
 
 
     @property
@@ -50,21 +43,18 @@ class Resource:
 
 
     def claim(self, n):
-        if self._error_handling(n):
-            if n <= self._total:
-                self._total -= n
-                self._allocated += n
-            else:
-                raise ValueError("The demand is greater than the total available.")
+        if not valid.validate_integer('claim', n, 0, self._total,\
+            custom_max_message="The demand is greater than the total available."):
+            self._total -= n
+            self._allocated += n
 
 
     def freeup(self, n):
-        if self._error_handling(n):
+        if not valid.validate_integer('claim', n, 0, self._total,\
+            custom_max_message="The demand is greater than the total available."):
             if n <= self._allocated:
                 self._allocated -= n
                 self._total += n
-            else:
-                raise ValueError("'n' argument is given more than the total number of allocations.")
 
 
     def died(self):
@@ -73,7 +63,8 @@ class Resource:
 
 
     def purchased(self, n):
-        self._total += n
+        if not valid.validate_integer('purchased', n):
+            self._total += n
 
     
     @property
@@ -111,16 +102,18 @@ class HDD(Resource):
         self.rpm  = rpm
 
 
-
 class SSD(Resource):
 
-    def __init__(self, interface):
+    def __init__(self, interface, name, manufacturer, total=0, allocated=0):
+        super().__init__(name, manufacturer, total, allocated)
         self.interface = interface
-
+        
+    def __repr__(self):
+        return f'SSD(interface={self.interface}, name={self.name}, manufacturer={self.manufacturer}, '\
+                f'total={self.total}, allocated={self.allocated})'
 
 
 r = Resource('Mouse X33', 'Razor', 5)
 cpu = CPU(8, '22', 12, '13900K', 'INTEL', 20)
-cpu.claim(9)
-print(repr(cpu))
-
+cpu.claim(20)
+ssd = SSD('NVMe', 'EVO 860', 'Samsung', 70, 5)

@@ -1,16 +1,23 @@
-from app.utils import validators as valid
+from app.utils.validators import validate_integer
+
 
 class Resource:
 
     def __init__(self, name, manufacturer, total=0, allocated=0):
         self._name = name
         self._manufacturer = manufacturer
+
+        validate_integer('total', total, min_value=0)
         self._total = total
-        if not valid.validate_integer('allocated', allocated, 0, self._total,\
-            "The demand is greater than the total available.",\
-            "The demand cannot be less than zero."):
-            self._total -= allocated
-            self._allocated = allocated
+
+        validate_integer(
+            'allocated', allocated, 0, total,\
+            "The demand cannot be less than zero.",\
+            "The demand is greater than the total available."
+        )
+        self._total -= allocated
+        self._allocated = allocated
+
 
 
     def __str__(self):
@@ -43,14 +50,14 @@ class Resource:
 
 
     def claim(self, n):
-        if not valid.validate_integer('claim', n, 0, self._total,\
+        if not validate_integer('claim', n, 0, self._total,\
             custom_max_message="The demand is greater than the total available."):
             self._total -= n
             self._allocated += n
 
 
     def freeup(self, n):
-        if not valid.validate_integer('claim', n, 0, self._total,\
+        if not validate_integer('claim', n, 0, self._total,\
             custom_max_message="The demand is greater than the total available."):
             if n <= self._allocated:
                 self._allocated -= n
@@ -63,7 +70,7 @@ class Resource:
 
 
     def purchased(self, n):
-        if not valid.validate_integer('purchased', n):
+        if not validate_integer('purchased', n):
             self._total += n
 
     
@@ -113,7 +120,10 @@ class SSD(Resource):
                 f'total={self.total}, allocated={self.allocated})'
 
 
-r = Resource('Mouse X33', 'Razor', 5)
-cpu = CPU(8, '22', 12, '13900K', 'INTEL', 20)
-cpu.claim(20)
-ssd = SSD('NVMe', 'EVO 860', 'Samsung', 70, 5)
+if __name__ == '__main__':
+    r = Resource('Mouse X33', 'Razor', 5)
+    cpu = CPU(8, '22', 12, '13900K', 'INTEL', 20)
+    cpu.claim(10)
+    ssd = SSD('NVMe', 'EVO 860', 'Samsung', 70, 50)
+    print(repr(ssd))
+    print(repr(cpu))

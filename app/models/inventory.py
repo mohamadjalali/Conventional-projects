@@ -15,7 +15,6 @@ class Resource:
             "The demand cannot be less than zero.",\
             "The demand is greater than the total available."
         )
-#        self._total -= allocated
         self._allocated = allocated
 
     
@@ -75,7 +74,6 @@ class Resource:
             'num', num, 1, self.available,
             custom_max_message="The demand is greater than the total available."
             )
-        #self._total -= num
         self._allocated += num
 
     
@@ -94,7 +92,6 @@ class Resource:
             custom_max_message="Cannot return more than allocated."
             )
         self._allocated -= num
-        #self._total += n
 
 
     def died(self, num):
@@ -223,32 +220,117 @@ class Storage(Resource):
 
 
 
-class HDD(Resource):
+class HDD(Storage):
+
+    """
+
+    Args:
+        name (str): display name of resource
+        manufacturer (str): resource manufacturer
+        total (int): current total amount of resources
+        allocated (int): current count of in-use resources
+        capacity_gb (int): storage capacity (in GB)
+        size (str): indicated the device size (must be either 2.5" or 3.5"
+        rpm (int): revolutions per minute is a unit of measurement used to quantify rotational speed.
+    """
     
-    def __init__(self, size, rpm):
-        self.size = size
-        self.rpm  = rpm
-
-
-class SSD(Resource):
-
-    def __init__(self, interface, name, manufacturer, total=0, allocated=0):
-        super().__init__(name, manufacturer, total, allocated)
-        self.interface = interface
+    def __init__(self, name, manufacturer, total, allocated, capacity_gb, size, rpm):
+        super().__init__(name, manufacturer, total, allocated, capacity_gb)
         
+        if not size in ['2.5"', '3.5"']:
+            raise ValueError(f'Invalid Hdd size. Must be one of 2.5" or 3.5"')
+        validate_integer('rpm', rpm, 1_000, 50_000)
+
+        self._size = size
+        self._rpm  = rpm
+
+    
+    @property
+    def size(self):
+        """
+        The HDD size (2.5" / 3.5"
+
+        Returns:
+            str
+        """
+        return self._size
+
+
+    @property
+    def rpm(self):
+        """
+        The HDD spin speed (rpm)
+
+        Returns:
+            int
+        """
+        return self._rpm
+    
+
+    def __repr__(self):
+        s = super().__repr__()
+        return f'{s} ({self.size}, {self.rpm} rpm)'
 
 
 
-resource =  {
-        'name': 'Core i7',
-        'manufacturer': 'Intel',
-        'total': 100,
-        'allocated': 50,
-        'cores': 16,
-        'socket': 'SATA',
-        'power_watts': 6
+class SSD(Storage):
+    """
+
+    Args:
+        name (str): display name of resource
+        manufacturer (str): resource manufacturer
+        total (int): current total amount of resources
+        allocated (int): current count of in-use resources
+        capacity_gb (int): storage capacity (in GB)
+        interface (str) indicates the device interface (e.g. PCIe NVMe 3.0 x4)
+    """
+
+    def __init__(
+            self, name, manufacturer, total, allocated,
+            capacity_gb, interface
+        ):
+        super().__init__(name, manufacturer, total, allocated, capacity_gb)
+        self._interface = interface
+
+
+    @property
+    def interface(self):
+        """
+        interface used by SSD (e.g. PCIe NVMe 3.0 x4)
+
+        Returns:
+           str 
+        """
+        return self._interface
+
+    
+    def __repr__(self):
+        s = super().__repr__()
+        return f'{s} ({self.interface})'
+
+
+"""
+hdd_resource =  {
+        'name': 'Blue WD10EZEX',
+        'manufacturer': 'Western Digital',
+        'total': 20,
+        'allocated': 8,
+        'capacity_gb': 1024,
+        'size': '3.5"',
+        'rpm': 5400
+    }
+
+
+ssd_resource =  {
+        'name': 'EVO 870',
+        'manufacturer': 'SAMSUNG',
+        'total': 20,
+        'allocated': 8,
+        'capacity_gb': 500,
+        'interface': 'SATA III'
     }
 
 if __name__ == '__main__':
-    print(repr(CPU(**resource)))
-    #print(CPU(**resource).__dict__)
+    print(repr(HDD(**hdd_resource)))
+    print(repr(SSD(**ssd_resource)))
+"""

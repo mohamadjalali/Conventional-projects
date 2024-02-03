@@ -113,5 +113,5 @@ class Mod:
 if __name__ == "__main__":
     a = Mod(4, 12)  
     b = Mod(15, 12)
-    print(a < b)
+    print(a > b)
 

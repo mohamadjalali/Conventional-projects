@@ -1,12 +1,14 @@
 from pprint import pprint
 from http import HTTPStatus
 from datetime import datetime
+import json
+import traceback
 
 
 
 class WidgetException(Exception):
 
-    message = 'Generic internal exception.'
+    message = 'Generic widget exception.'
     http_status = HTTPStatus.INTERNAL_SERVER_ERROR
 
     
@@ -19,45 +21,55 @@ class WidgetException(Exception):
         self.customer_message = customer_message if customer_message is not None else self.message
 
 
+
+
+    @property
+    def traceback(self):
+        return traceback.TracebackException.from_exception(self).format()
+
+
     def log_exception(self):
         exception = {
                 "type": type(self).__name__,
                 "message": self.message,
-                "args": self.args[1:]
+                "args": self.args[1:],
+                "traceback": list(self.traceback)
             }
         print(f'EXCEPTION: {datetime.utcnow().isoformat()}: {exception}')
 
 
-    def from_exception(self):
-        pass
 
+    def to_json(self):
+        response = {
+            'code': self.http_status.value,
+            'message': '{}: {}'.format(self.http_status.phrase, self.customer_message),
+            'category': type(self).__name__,
+            'time_utc': datetime.utcnow().isoformat()
+        }
+        return json.dumps(response)
 
-    def format(self):
-        pass
 
 
 
 
 class SupplierException(WidgetException):
     message = 'Supplier exception.'
-    http_status = HTTPStatus.INTERNAL_SERVER_ERROR
+#    http_status = HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 class NotManufacturedException(SupplierException):
     message = 'Widget is no longer manufactured by supplier'
-    http_status = HTTPStatus.NOT_FOUND
+#    http_status = HTTPStatus.NOT_FOUND
 
 
 class ProductionDelayedException(SupplierException):
     message = 'Widget production has been delayed by manufacturer'
-    http_status = HTTPStatus.GATEWAY_TIMEOUT
+#    http_status = HTTPStatus.GATEWAY_TIMEOUT
 
 
 
 class ShippingDelayedException(SupplierException):
     message = 'Widget shipping has been delayed by supplier'
-    http_status = HTTPStatus.REQUEST_TIMEOUT
-
 
 
 
@@ -87,9 +99,17 @@ class CannotStackCouponException(PricingException):
 
 
 
-
 try:
-    raise CannotStackCouponException()
-except CannotStackCouponException as ex:
-    print(ex.log_exception())
-    raise
+    raise ValueError()
+except ValueError:
+    try:
+        raise InvalidCouponCodeException(
+                'Usert tried to pull a fast one on us.',\
+                customer_message='Sorry. This coupon is not value.'
+            )
+    except InvalidCouponCodeException as ex:
+        print(ex.log_exception())
+        print('-----------------------------')
+        print(ex.to_json())
+        print('-----------------------------')
+        print(''.join(ex.traceback))
